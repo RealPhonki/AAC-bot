@@ -26,7 +26,7 @@ class Ping(commands.Cog):
 
             await interaction.response.send_message(embed = embed_message)
             
-        except Exception as e:
+        except Exception:
             print_exc()
 
 # add the extension to the bot
