@@ -1,5 +1,5 @@
 # external imports
-from chess import Board, SQUARES, square_file, square_rank
+from chess import Board, SQUARES, square_file, square_rank, WHITE, BLACK
 from discord import app_commands, Embed, Color, Interaction, File as discord_file, utils, User
 from discord.ext import commands
 from PIL import Image, ImageDraw
@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw
 # builtin imports
 from functools import cached_property
 from traceback import print_exc
+from typing import Tuple
 from io import BytesIO
 import random
 
@@ -74,11 +75,10 @@ class Game:
         
         return image
 
-    @property
-    def board_image(self) -> Image:
+    def generate_board_image(self) -> Image:
         """ Returns the raw png data of the current board state"""
         # get the empty board image
-        image = self.empty_board_image
+        image = self.empty_board_image.copy()
         
         # loop through every square
         for square in SQUARES:
@@ -138,7 +138,9 @@ class Game:
         return True
 
     def play_popular_move(self) -> None:
-        pass
+        self.board.push_san(max(self.vote_sum, key=self.vote_sum.get))
+        self.reset_votes()
+        self.get_legal_moves()
 
 class Chess(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -146,6 +148,7 @@ class Chess(commands.Cog):
         self.bot = bot
 
         # constants
+        self.CHANNEL = 1172622450702434348
         self.TEAMS = ["white", "black"]
         self.SQUARE_SIZE = 100 # square size in pixels
         self.BOARD_SIZE = self.SQUARE_SIZE * 8
@@ -170,6 +173,20 @@ class Chess(commands.Cog):
         self.game = Game()
         self.vote_minimum = 0
 
+    def get_board_embed(self) -> Tuple[Embed, discord_file]:
+        embed = Embed(
+            title = self.game.turn,
+            color = Color.gold()
+        )
+
+        embed.add_field(name = f"{self.vote_minimum} vote(s) required to play move", value="")
+        embed.add_field(name = "Legal moves:", value=self.game.legal_moves_str, inline=False)
+        embed.set_image(url='attachment://board_image.png')
+
+        board_image = discord_file(self.game.generate_board_image(), filename="board_image.png")
+
+        return embed, board_image
+
     @app_commands.command(name="start_game")
     @app_commands.describe(grant_roles="Grant roles to all users")
     @app_commands.choices(grant_roles=[
@@ -183,6 +200,11 @@ class Chess(commands.Cog):
             if not user_has_perms:
                 return
             
+            # check if this command has been run in the correct server
+            if interaction.channel_id != self.CHANNEL:
+                await interaction.response.send_message(f"Games can only be started in the https://discord.com/channels/1135023767798698117/{self.CHANNEL}", ephemeral=True)
+                return
+
             # check if there is already a game in session
             if self.game.playing:
                 await interaction.response.send_message("The game is already in session!", ephemeral=True)
@@ -212,16 +234,7 @@ class Chess(commands.Cog):
                     self.bot.logger.info(f"Added role '{team}' to {member.name}")
 
             # create discord embed
-            self.bot.logger.info(f"Building embed")
-            embed = Embed(
-                title = self.game.turn,
-                color = Color.gold()
-            )
-            embed.set_image(url='attachment://board_image.png')
-            embed.add_field(name = "Legal moves", value=self.game.legal_moves_str, inline=False)
-
-            self.bot.logger.info(f"Generating board state")
-            board_image = discord_file(self.game.board_image, filename="board_image.png")
+            embed, board_image = self.get_board_embed()
 
             await interaction.followup.send(embed=embed, file=board_image)
 
@@ -272,14 +285,41 @@ class Chess(commands.Cog):
     @app_commands.command(name="vote")
     async def vote(self, interaction: Interaction, move: str) -> None:
         try:
+            # check if this command has been run in the correct server
+            if interaction.channel_id != self.CHANNEL:
+                await interaction.response.send_message(f"Votes can only be made in https://discord.com/channels/1135023767798698117/{self.CHANNEL}", ephemeral=True)
+                return
+            
+            # check if there is a game in session
             if not self.game.playing:
                 await interaction.response.send_message("There is no game in session!", ephemeral=True)
                 return
-            
-            if self.game.vote(interaction.user.id, move):
-                await interaction.response.send_message(f"You voted for \"{move}\"!", ephemeral=True)
+
+            # check if they have perms
+
+            if self.game.board.turn == WHITE:
+                if "white" not in [role.name for role in interaction.user.roles]:
+                    await interaction.response.send_message(f"Its not your turn to play!", ephemeral=True)
+                    return
             else:
-                await interaction.response.send_message(f"'{move}' is not a legal move!", ephemeral=True)
+                if "black" not in [role.name for role in interaction.user.roles]:
+                    await interaction.response.send_message(f"Its not your turn to play!", ephemeral=True)
+                    return
+                
+
+            # check if the vote was successful
+            if not self.game.vote(interaction.user.id, move):
+                await interaction.response.send_message(f"\"{move}\" is not a legal move!", ephemeral=True)
+                return
+            
+            await interaction.response.send_message(f"You voted for \"{move}\"!", ephemeral=True)
+
+            # if vote minimum has been reached then play the move
+            if len(self.game.votes) == self.vote_minimum:
+                self.game.play_popular_move()
+                embed, board_image = self.get_board_embed()
+
+                await interaction.followup.send(embed=embed, file=board_image)
 
         except Exception as e:
             await interaction.channel.send(f"Internal command failure {type(e).__name__}: {e}")
@@ -288,6 +328,7 @@ class Chess(commands.Cog):
     @app_commands.command(name="show_votes")
     async def show_votes(self, interaction: Interaction) -> None:
         try:
+            # check if there is a game in session
             if not self.game.playing:
                 await interaction.response.send_message("There is no game in session!", ephemeral=True)
                 return
