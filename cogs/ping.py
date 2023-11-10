@@ -2,6 +2,9 @@
 from discord import Embed, app_commands, Interaction
 from discord.ext import commands
 
+# builtin imports
+from traceback import print_exc
+
 class Ping(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -24,7 +27,7 @@ class Ping(commands.Cog):
             await interaction.response.send_message(embed = embed_message)
             
         except Exception as e:
-            print(f"{type(e).__name__}: {e}")
+            print_exc()
 
 # add the extension to the bot
 async def setup(bot: commands.Bot) -> None:
