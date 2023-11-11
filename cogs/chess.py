@@ -1,14 +1,17 @@
 # external imports
-from chess import Board, SQUARES, square_file, square_rank, WHITE, BLACK
 from discord import app_commands, Embed, Color, Interaction, File as discord_file, utils, User
 from discord.ext import commands
 from PIL import Image, ImageDraw
+import chess
+import chess.pgn
 
 # builtin imports
 from functools import cached_property
 from traceback import print_exc
+from datetime import datetime
 from typing import Tuple
 from io import BytesIO
+import collections
 import random
 
 class Game:
@@ -81,15 +84,15 @@ class Game:
         image = self.empty_board_image.copy()
         
         # loop through every square
-        for square in SQUARES:
+        for square in chess.SQUARES:
             # get the piece from the chessboard, skip if there is no piece at that square
             piece = self.board.piece_at(square)
             if piece is None:
                 continue
 
             # get the coordinates of the piece
-            x = square_file(square) * self.SQUARE_SIZE
-            y = (7 - square_rank(square)) * self.SQUARE_SIZE
+            x = chess.square_file(square) * self.SQUARE_SIZE
+            y = (7 - chess.square_rank(square)) * self.SQUARE_SIZE
 
             # access the image and resize it
             piece_image = self.PIECE_IMAGES[piece.symbol()]
@@ -107,23 +110,51 @@ class Game:
         return image_stream
 
     """ ----- General Methods ----- """
-    def get_legal_moves(self):
+    def get_pgn(self) -> str:
+        # create chess game instance
+        game = chess.pgn.Game()
+
+        # set metadata attributes
+        game.headers["Event"] = "Alliance Academy Experimental Chess Event"
+        game.headers["Site"] = "https://discord.com"
+        game.headers["Date"] = datetime.now().strftime("%Y-%m-%d")
+        game.headers["Round"] = "1"
+        game.headers["White"] = "White team"
+        game.headers["Black"] = "Black team"
+
+        # undo all moves
+        switchyard = collections.deque()
+        while self.board.move_stack:
+            switchyard.append(self.board.pop())
+
+        game.setup(self.board)
+        node = game
+
+        # replay all moves
+        while switchyard:
+            move = switchyard.pop()
+            node = node.add_variation(move)
+            self.board.push(move)
+        
+        if self.board.result() == "*":
+            game.headers["Result"] = "GAME CANCELED"
+        else:
+            game.headers["Result"] = self.board.result()
+
+        return game.accept(chess.pgn.StringExporter())
+
+    def get_legal_moves(self) -> None:
         self.legal_moves = [self.board.san(move) for move in self.board.legal_moves]
 
-    def start_game(self) -> None:
+    def start_game(self, fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") -> None:
+        self.board = chess.Board(fen)
         self.playing = True
-        self.reset_board()
-        self.reset_votes()
+        self.votes = {}
         self.get_legal_moves()
 
     def end_game(self) -> None:
         self.playing = False
-
-    def reset_votes(self) -> None:
-        self.votes = {}
-
-    def reset_board(self) -> None:
-        self.board = Board()
+        return self.get_pgn()
     
     def vote(self, user: User, move: str) -> bool:
         """
@@ -138,9 +169,17 @@ class Game:
         return True
 
     def play_popular_move(self) -> None:
+        # do not play moves if there are multiple moves with high vote counts
+        most_votes = max(self.vote_sum.values())
+        popular_moves = [move for move, votes in self.vote_sum.items() if votes == most_votes]
+        if len(popular_moves) > 1:
+            return False
+
+        # play move and return True
         self.board.push_san(max(self.vote_sum, key=self.vote_sum.get))
-        self.reset_votes()
+        self.votes = {}
         self.get_legal_moves()
+        return True
 
 class Chess(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -188,19 +227,25 @@ class Chess(commands.Cog):
         return embed, board_image
 
     @app_commands.command(name="start_game")
-    @app_commands.describe(grant_roles="Grant roles to all users")
-    @app_commands.choices(grant_roles=[
+    @app_commands.describe(mix_teams="Grant roles to all users")
+    @app_commands.choices(mix_teams=[
         app_commands.Choice(name="True", value=True),
         app_commands.Choice(name="False", value=False)
     ])
-    async def start_game(self, interaction: Interaction, grant_roles: app_commands.Choice[int], vote_minimum: str) -> None:
+    async def start_game(
+        self,
+        interaction: Interaction,
+        mix_teams: app_commands.Choice[int],
+        vote_minimum: str,
+        fen: str = None
+    ) -> None:
         try:
             # check user permissions
             user_has_perms = await self.bot.check_perms(interaction)
             if not user_has_perms:
                 return
             
-            # check if this command has been run in the correct server
+            # check if this command has been run in the correct channel
             if interaction.channel_id != self.CHANNEL:
                 await interaction.response.send_message(f"Games can only be started in the https://discord.com/channels/1135023767798698117/{self.CHANNEL}", ephemeral=True)
                 return
@@ -210,6 +255,7 @@ class Chess(commands.Cog):
                 await interaction.response.send_message("The game is already in session!", ephemeral=True)
                 return
             
+            # check if the vote_minimum parameter is a number before saving it
             if not vote_minimum.isnumeric():
                 await interaction.response.send_message("vote_minimum needs to be a number!", ephemeral=True)
                 return
@@ -217,21 +263,23 @@ class Chess(commands.Cog):
 
             # start the game
             await interaction.response.send_message("Starting game...")
-            self.game.start_game()
+            if fen:
+                self.game.start_game(fen)
+            else:
+                self.game.start_game()
 
-            # loop through every member and give them a role
-            if grant_roles.value:
-                self.bot.logger.info("Building teams...")
-                guild = interaction.guild
-                for member in guild.members:
-                    team = random.choice(self.TEAMS)
-                    existing_role = utils.get(guild.roles, name=team)
-                    if not existing_role:
-                        existing_role = await guild.create_role(name=team)
+            # if the 'mix_teams' parameter is set to True
+            if mix_teams.value:
+                for member in interaction.guild.members:
+                    # remove them from their old team
+                    for team in self.TEAMS:
+                        await member.remove_roles(utils.get(interaction.guild.roles, name=team))
+                    self.bot.logger.info(f"Removed roles {self.TEAMS} from {member.name}")
 
-                    await member.add_roles(existing_role)
-
-                    self.bot.logger.info(f"Added role '{team}' to {member.name}")
+                    # grant them a new team
+                    new_team = utils.get(interaction.guild.roles, name=random.choice(self.TEAMS))
+                    await member.add_roles(new_team)
+                    self.bot.logger.info(f"Granted role '{team}' to {member.name}")
 
             # create discord embed
             embed, board_image = self.get_board_embed()
@@ -243,13 +291,13 @@ class Chess(commands.Cog):
             print_exc()
     
     @app_commands.command(name="end_game")
-    @app_commands.describe(clear_roles="Clear roles from all users")
-    @app_commands.choices(clear_roles=[
-        app_commands.Choice(name="True", value=True),
-        app_commands.Choice(name="False", value=False)
-    ])
-    async def end_game(self, interaction: Interaction, clear_roles: app_commands.Choice[int]) -> None:
+    async def end_game(self, interaction: Interaction) -> None:
         try:
+            # check if this command has been run in the correct channel
+            if interaction.channel_id != self.CHANNEL:
+                await interaction.response.send_message(f"Game related commands can only be done in https://discord.com/channels/1135023767798698117/{self.CHANNEL}", ephemeral=True)
+                return
+
             # check user permissions
             user_has_perms = await self.bot.check_perms(interaction)
             if not user_has_perms:
@@ -263,20 +311,15 @@ class Chess(commands.Cog):
             # end the game
             await interaction.response.send_message(f"Ending game...")
 
-            self.game.end_game()
+            result = self.game.end_game()
 
-            # remove roles from each user
-            if clear_roles.value:
-                self.bot.logger.info(f"Removing roles")
-                guild = interaction.guild
-                for member in guild.members:
-                    for team in self.TEAMS:
-                        role = utils.get(guild.roles, name=team)
-                        await member.remove_roles(role)
+            embed = Embed(
+                title = "GAME OVER",
+                color = Color.gold()
+            )
+            embed.add_field(name="Game result:", value=result)
 
-                        self.bot.logger.info(f"Removing role '{team}' from {member.name}'")
-
-            await interaction.followup.send(f"Game ended.")
+            await interaction.followup.send(embed=embed)
 
         except Exception as e:
             await interaction.channel.send(f"Internal command failure {type(e).__name__}: {e}")
@@ -297,7 +340,7 @@ class Chess(commands.Cog):
 
             # check if they have perms
 
-            if self.game.board.turn == WHITE:
+            if self.game.board.turn == chess.WHITE:
                 if "white" not in [role.name for role in interaction.user.roles]:
                     await interaction.response.send_message(f"Its not your turn to play!", ephemeral=True)
                     return
@@ -315,11 +358,33 @@ class Chess(commands.Cog):
             await interaction.response.send_message(f"You voted for \"{move}\"!", ephemeral=True)
 
             # if vote minimum has been reached then play the move
-            if len(self.game.votes) == self.vote_minimum:
-                self.game.play_popular_move()
-                embed, board_image = self.get_board_embed()
+            if len(self.game.votes) >= self.vote_minimum:
+                if self.game.play_popular_move():
+                    embed, board_image = self.get_board_embed()
+                    await interaction.followup.send(embed=embed, file=board_image)
 
-                await interaction.followup.send(embed=embed, file=board_image)
+                    if self.game.board.is_checkmate():
+                        result = self.game.end_game()
+
+                        embed = Embed(
+                            title = "GAME OVER",
+                            color = Color.gold()
+                        )
+                        embed.add_field(name="Game result:", value=result)
+
+                        await interaction.followup.send(embed=embed)
+                else:
+                    embed = Embed(
+                        title = f"There is a tie in votes!",
+                        color = Color.gold()
+                    )
+                    most_votes = max(self.game.vote_sum.values())
+                    for move, votes in self.game.vote_sum.items():
+                        if votes != most_votes:
+                            continue
+                        embed.add_field(name=move, value=votes, inline=True)
+
+                    await interaction.followup.send(embed=embed)
 
         except Exception as e:
             await interaction.channel.send(f"Internal command failure {type(e).__name__}: {e}")
@@ -328,6 +393,11 @@ class Chess(commands.Cog):
     @app_commands.command(name="show_votes")
     async def show_votes(self, interaction: Interaction) -> None:
         try:
+            # check if this command has been run in the correct channel
+            if interaction.channel_id != self.CHANNEL:
+                await interaction.response.send_message(f"Game related commands can only be done in https://discord.com/channels/1135023767798698117/{self.CHANNEL}", ephemeral=True)
+                return
+            
             # check if there is a game in session
             if not self.game.playing:
                 await interaction.response.send_message("There is no game in session!", ephemeral=True)
