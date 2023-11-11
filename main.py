@@ -1,6 +1,6 @@
 # external imports
-from discord.ext import commands, tasks
 import discord
+from discord.ext import commands, tasks
 from asyncio import run
 
 # builtin imports
