@@ -1,6 +1,6 @@
 # external imports
 from discord.ext import commands, tasks
-from discord import Intents, Embed, Interaction, Game, __version__, Color
+import discord
 from asyncio import run
 
 # builtin imports
@@ -25,10 +25,10 @@ class DiscordBot(commands.Bot):
         self.logger = logger()
 
         # initialization
-        super().__init__(self.CONFIG["prefix"], intents=Intents.all())
+        super().__init__(self.CONFIG["prefix"], intents=discord.Intents.all())
         self.add_builtin_commands()
 
-    async def check_perms(self, interaction: Interaction, warning = True) -> bool:
+    async def check_perms(self, interaction: discord.Interaction, warning = True) -> bool:
         """
         Check if a user in an interaction is an admin.
         """
@@ -55,7 +55,7 @@ class DiscordBot(commands.Bot):
         Debug information to confirm that the bot has connected.
         """
         self.logger.info(f"Logged in as {self.user.name}")
-        self.logger.info(f"discord.py API version: {__version__}")
+        self.logger.info(f"discord.py API version: {discord.__version__}")
         self.logger.info(f"Python version: {python_version()}")
         self.logger.info(f"Running on: {system()} {release()} ({os_name})")
         self.logger.info("-------------------")
@@ -84,7 +84,7 @@ class DiscordBot(commands.Bot):
         Changes the bot status every 60 seconds.
         """
         bot_status = cycle(self.CONFIG["statuses"])
-        await self.change_presence(activity=Game(next(bot_status)))
+        await self.change_presence(activity=discord.Game(next(bot_status)))
 
     def add_builtin_commands(self) -> None:
         """
@@ -97,7 +97,7 @@ class DiscordBot(commands.Bot):
                     synced = await self.tree.sync()
 
                     # create embed instance
-                    embed_message = Embed(title = f"Synced {len(synced)} command(s)", color=Color.gold())
+                    embed_message = discord.Embed(title = f"Synced {len(synced)} command(s)", color=discord.Color.gold())
                     embed_message.set_author( # set author of embed to the user who requested the command
                         name = f'Requested by {ctx.author.name}',
                         icon_url = ctx.author.avatar
