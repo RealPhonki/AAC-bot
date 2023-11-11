@@ -1,5 +1,6 @@
 # external imports
-from discord import Embed, app_commands, Interaction
+import discord
+from discord import app_commands
 from discord.ext import commands
 
 # builtin imports
@@ -10,7 +11,7 @@ class Ping(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="ping", description="Check if the bot is alive!")
-    async def ping(self, interaction: Interaction) -> None:
+    async def ping(self, interaction: discord.Interaction) -> None:
         """
         Checks the latency of the bot.
         """
@@ -18,7 +19,7 @@ class Ping(commands.Cog):
             bot_latency = round(self.bot.latency * 1000)
 
             # create embed instance
-            embed_message = Embed(title = f"pong : {bot_latency} ms")
+            embed_message = discord.Embed(title = f"pong : {bot_latency} ms")
             embed_message.set_author(
                 name = f'Requested by {interaction.user.name}',
                 icon_url = interaction.user.avatar
