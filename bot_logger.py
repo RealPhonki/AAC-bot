@@ -1,55 +1,48 @@
 import logging
 
-# not my code but who cares
 class LoggingFormatter(logging.Formatter):
-    # Colors
-    black = "\x1b[30m"
-    red = "\x1b[31m"
-    green = "\x1b[32m"
-    yellow = "\x1b[33m"
-    blue = "\x1b[34m"
-    gray = "\x1b[38m"
-
-    # Styles
-    reset = "\x1b[0m"
-    bold = "\x1b[1m"
-
     COLORS = {
-        logging.DEBUG: gray + bold,
-        logging.INFO: blue + bold,
-        logging.WARNING: yellow + bold,
-        logging.ERROR: red,
-        logging.CRITICAL: red + bold,
+        logging.DEBUG: "\x1b[38;5;240;1m",  # gray + bold
+        logging.INFO: "\x1b[34;1m",  # blue + bold
+        logging.WARNING: "\x1b[33;1m",  # yellow + bold
+        logging.ERROR: "\x1b[31m",  # red
+        logging.CRITICAL: "\x1b[31;1m",  # red + bold
     }
 
+    FORMAT = (
+        "{black}{asctime}{reset} {levelcolor}{levelname:<8}{reset} {green}{name}{reset} {message}"
+    )
+
     def format(self, record):
-        log_color = self.COLORS[record.levelno]
-        format = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
-        format = format.replace("(black)", self.black + self.bold)
-        format = format.replace("(reset)", self.reset)
-        format = format.replace("(levelcolor)", log_color)
-        format = format.replace("(green)", self.green + self.bold)
-        formatter = logging.Formatter(format, "%Y-%m-%d %H:%M:%S", style="{")
+        # get the color corresponding to the log level
+        log_color = self.COLORS.get(record.levelno, "")
+
+        # apply the color and formatting
+        format_str = self.FORMAT.replace("{black}", "\x1b[30;1m").replace("{reset}", "\x1b[0m")
+        format_str = format_str.replace("{levelcolor}", log_color).replace("{green}", "\x1b[32;1m")
+
+        # create a formatter with 'format_str'
+        formatter = logging.Formatter(format_str, "%Y-%m-%d %H:%M:%S", style="{")
+        
+        # return the result
         return formatter.format(record)
 
-def logger() -> logging.Logger:
-    """Returns a custom logger object"""
-    logger = logging.getLogger("discord_bot")
-    logger.setLevel(logging.INFO)
+class logger(logging.Logger):
+    def __init__(self, name="discord_bot", log_file="discord.log"):
+        super().__init__(name)
+        self.setLevel(logging.INFO)
 
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(LoggingFormatter())
+        # Create handlers that will output logs to the console
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(LoggingFormatter())
 
-    # File handler
-    file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
-    file_handler_formatter = logging.Formatter(
-        "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
-    )
-    file_handler.setFormatter(file_handler_formatter)
+        # Create handlers that will save logs to a file
+        file_handler = logging.FileHandler(filename=log_file, encoding="utf-8", mode="w")
+        file_handler_formatter = logging.Formatter(
+            "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
+        )
+        file_handler.setFormatter(file_handler_formatter)
 
-    # Add the handlers
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-
-    return logger
+        # Add the handlers to the logger
+        self.addHandler(console_handler)
+        self.addHandler(file_handler)
