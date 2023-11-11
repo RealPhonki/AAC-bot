@@ -1,13 +1,13 @@
 # external imports
 from discord.ext import commands, tasks
-from discord import Intents, Embed, Interaction, Game, __version__
+from discord import Intents, Embed, Interaction, Game, __version__, Color
 from asyncio import run
 
 # builtin imports
 from platform import python_version, system, release
-from itertools import cycle
-from json import load as json_load
 from os import name as os_name, listdir
+from json import load as json_load
+from itertools import cycle
 
 # local imports
 from bot_logger import logger
@@ -26,7 +26,7 @@ class DiscordBot(commands.Bot):
 
         # initialization
         super().__init__(self.CONFIG["prefix"], intents=Intents.all())
-        self.add_events()
+        self.add_builtin_commands()
 
     async def check_perms(self, interaction: Interaction, warning = True) -> bool:
         """
@@ -34,10 +34,10 @@ class DiscordBot(commands.Bot):
         """
         if self.CONFIG["admin_role"] in [role.id for role in interaction.user.roles]:
             return True
-        else:
-            if warning:
-                await interaction.response.send_message("You need to be an admin to run this command!", ephemeral=True)
-            return False
+        
+        elif warning:
+            await interaction.response.send_message("You need to be an admin to run this command!", ephemeral=True)
+        return False
 
     def load_config(self) -> dict:
         """
@@ -48,7 +48,7 @@ class DiscordBot(commands.Bot):
                 return json_load(file)
             
         except Exception as error:
-            raise FileNotFoundError(f"{type(error).name}: {error}")
+            raise FileNotFoundError(f"{type(error).__name__}: {error}")
 
     async def on_ready(self) -> None:
         """
@@ -62,7 +62,7 @@ class DiscordBot(commands.Bot):
 
         self.change_status.start()
 
-    async def load(self) -> None:
+    async def load_cogs(self) -> None:
         """
         Loops through every python file in the cogs folder and loads it as a cog extension.
         """
@@ -76,8 +76,7 @@ class DiscordBot(commands.Bot):
                 self.logger.info(f"Loaded extension '{extension}'")
 
             except Exception as error:
-                exception = f"{type(error).__name__}: {error}"
-                self.logger.error(f"Failed to load extension {extension}\n{exception}")
+                self.logger.error(f"Failed to load extension {extension}\n{type(error).__name__}: {error}")
 
     @tasks.loop(seconds=60)
     async def change_status(self) -> None:
@@ -87,7 +86,7 @@ class DiscordBot(commands.Bot):
         bot_status = cycle(self.CONFIG["statuses"])
         await self.change_presence(activity=Game(next(bot_status)))
 
-    def add_events(self) -> None:
+    def add_builtin_commands(self) -> None:
         """
         Adds commands and events that are required for bot development.
         """
@@ -98,7 +97,7 @@ class DiscordBot(commands.Bot):
                     synced = await self.tree.sync()
 
                     # create embed instance
-                    embed_message = Embed(title = f"Synced {len(synced)} command(s)")
+                    embed_message = Embed(title = f"Synced {len(synced)} command(s)", color=Color.gold())
                     embed_message.set_author( # set author of embed to the user who requested the command
                         name = f'Requested by {ctx.author.name}',
                         icon_url = ctx.author.avatar
@@ -112,14 +111,13 @@ class DiscordBot(commands.Bot):
             self.logger.info(f"Loaded command 'sync'")
 
         except Exception as error:
-            exception = f"{type(error).__name__}: {error}"
-            self.logger.error(f"Failed to load command 'sync'\n{exception}")
+            self.logger.error(f"Failed to load command 'sync'\n{type(error).__name__}: {error}")
 
     async def main(self) -> None:
         """
         Loads the bot and logs into the discord server.
         """
-        await self.load()
+        await self.load_cogs()
         await self.start(self.CONFIG["token"])
 
 if __name__ == '__main__':
