@@ -14,9 +14,7 @@ from bot_logger import logger
 
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
-        """
-        Creates some custom attributes before calling the super initializer.
-        """
+        """ Creates some custom attributes before calling the super initializer. """
         
         # constants
         self.CONFIG = self.load_config()
@@ -28,10 +26,18 @@ class DiscordBot(commands.Bot):
         super().__init__(self.CONFIG["prefix"], intents=discord.Intents.all())
         self.add_builtin_commands()
 
-    async def check_perms(self, interaction: discord.Interaction, warning = True) -> bool:
-        """
-        Check if a user in an interaction is an admin.
-        """
+    async def send_command_embed(self, interaction: discord.Interaction, title: str, message: str) -> None:
+        try:
+            """ Sends an embed containing command debug information"""
+            embed_message = discord.Embed(title = title, color = discord.Color.gold())
+            embed_message.add_field(name = message, value = "")
+            embed_message.set_author(name = f"Requested by {interaction.user.name}", icon_url = interaction.user.avatar)
+            await interaction.response.send_message(embed = embed_message)
+        except Exception as error:
+            self.logger.error(f"{type(error).__name__}: {error}")
+
+    async def check_admin(self, interaction: discord.Interaction, warning = True) -> bool:
+        """ Check if a user in an interaction is an admin. """
         if self.CONFIG["admin_role"] in [role.id for role in interaction.user.roles]:
             return True
         
@@ -40,9 +46,7 @@ class DiscordBot(commands.Bot):
         return False
 
     def load_config(self) -> dict:
-        """
-        Loads bot_config.json as a python dictionary and returns the contents.
-        """
+        """ Loads bot_config.json as a python dictionary and returns the contents. """
         try:
             with open("config/bot_config.json") as f:
                 return json_load(f)
@@ -51,9 +55,7 @@ class DiscordBot(commands.Bot):
             raise FileNotFoundError(f"{type(error).__name__}: {error}")
 
     async def on_ready(self) -> None:
-        """
-        Debug information to confirm that the bot has connected.
-        """
+        """ Debug information to confirm that the bot has connected. """
         self.logger.info(f"Logged in as {self.user.name}")
         self.logger.info(f"discord.py API version: {discord.__version__}")
         self.logger.info(f"Python version: {python_version()}")
@@ -63,9 +65,7 @@ class DiscordBot(commands.Bot):
         self.change_status.start()
 
     async def load_cogs(self) -> None:
-        """
-        Loops through every python file in the cogs folder and loads it as a cog extension.
-        """
+        """ Loops through every python file in the cogs folder and loads it as a cog extension. """
         for filename in listdir("./cogs"):
             if not filename.endswith(".py"):
                 continue
@@ -78,20 +78,16 @@ class DiscordBot(commands.Bot):
             except Exception as error:
                 self.logger.error(f"Failed to load extension {extension}\n{type(error).__name__}: {error}")
 
-    @tasks.loop(seconds=60)
+    @tasks.loop(seconds = 60)
     async def change_status(self) -> None:
-        """
-        Changes the bot status every 60 seconds.
-        """
+        """ Changes the bot status every 60 seconds. """
         bot_status = cycle(self.CONFIG["statuses"])
-        await self.change_presence(activity=discord.Game(next(bot_status)))
+        await self.change_presence(activity = discord.Game(next(bot_status)))
 
     def add_builtin_commands(self) -> None:
-        """
-        Adds commands and events that are required for bot development.
-        """
+        """ Adds commands and events that are required for bot development. """
         try:
-            @self.command(name="sync") 
+            @self.command(name = "sync", description = "Syncs the bots commands with the discord database") 
             async def sync(ctx: commands.Context):
                 try:
                     synced = await self.tree.sync()
@@ -114,9 +110,7 @@ class DiscordBot(commands.Bot):
             self.logger.error(f"Failed to load command 'sync'\n{type(error).__name__}: {error}")
 
     async def main(self) -> None:
-        """
-        Loads the bot and logs into the discord server.
-        """
+        """ Loads the bot and logs into the discord server. """
         await self.load_cogs()
         await self.start(self.CONFIG["token"])
 
