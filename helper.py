@@ -1,5 +1,12 @@
 import logging
 
+def format_text_left(text: str, width: int) -> str:
+    difference = width - len(text)
+    if difference < 0:
+        text = text[:width]
+    
+    return text + " " * difference
+
 class LoggingFormatter(logging.Formatter):
     COLORS = {
         logging.DEBUG: "\x1b[38;5;240;1m",  # gray + bold
