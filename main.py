@@ -10,7 +10,7 @@ from json import load as json_load
 from itertools import cycle
 
 # local imports
-from bot_logger import logger
+from helper import logger
 
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
