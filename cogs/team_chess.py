@@ -79,8 +79,8 @@ class TeamChess(commands.Cog):
 
         # save the game result to memory
         self.save_game(game_result)
-        self.dump_config()
         self.game_number += 1
+        self.dump_config()
 
         # send the game result
         embed_message = discord.Embed(title = "GAME OVER:", color = discord.Color.gold())
@@ -94,7 +94,7 @@ class TeamChess(commands.Cog):
             if self.chess_handler.check_vote_tie():
                 embed_message = discord.Embed(title = f"There is a tie in votes!", color = discord.Color.gold())
                 most_votes = max(self.chess_handler.vote_pool.values())
-                [embed_message.add_field(name = move, value = votes, inline = True) for move, votes in self.chess_handler.vote_pool.items() if votes == most_votes]
+                [embed_message.add_field(name = move, value = votes, inline = False) for move, votes in self.chess_handler.vote_pool.items() if votes == most_votes]
                 await interaction.followup.send(embed = embed_message)
             
             else:
@@ -331,7 +331,7 @@ class TeamChess(commands.Cog):
             else:
                 print("building embed")
                 embed_message = discord.Embed(title = f"Voting pool:", color = discord.Color.gold())
-                [embed_message.add_field(name = move, value = votes, inline = True) for move, votes in non_zero_votes]
+                [embed_message.add_field(name = f"{move}: votes", value = "", inline = False) for move, votes in non_zero_votes.items()]
                 print('sending embed')
                 await interaction.response.send_message(embed = embed_message)
 
