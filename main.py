@@ -26,20 +26,20 @@ class DiscordBot(commands.Bot):
         super().__init__(self.CONFIG["prefix"], intents=discord.Intents.all())
         self.add_builtin_commands()
 
-    async def send_command_embed(self, interaction: discord.Interaction, title: str, message: str) -> None:
+    async def send_command_embed(self, interaction: discord.Interaction, title: str, message: str, color = discord.Color.gold()) -> None:
         try:
             """ Sends an embed containing command debug information"""
-            embed_message = discord.Embed(title = title, color = discord.Color.gold())
+            embed_message = discord.Embed(title = title, color = color)
             embed_message.add_field(name = message, value = "")
             embed_message.set_author(name = f"Requested by {interaction.user.name}", icon_url = interaction.user.avatar)
-            await interaction.response.send_message(embed = embed_message)
+            await interaction.response.send_message(embed = embed_message, ephemeral = True)
             
         except Exception as error:
             self.logger.error(f"{type(error).__name__}: {error}")
 
     async def check_admin(self, interaction: discord.Interaction, warning = True) -> bool:
         """ Check if a user in an interaction is an admin. """
-        if self.CONFIG["admin_role"] in [role.id for role in interaction.user.roles]:
+        if self.CONFIG["admin_role"] in [role.name for role in interaction.user.roles]:
             return True
         
         elif warning:
