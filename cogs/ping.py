@@ -3,9 +3,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-# builtin imports
-from traceback import print_exc
-
 class Ping(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -27,8 +24,8 @@ class Ping(commands.Cog):
 
             await interaction.response.send_message(embed = embed_message)
             
-        except Exception:
-            print_exc()
+        except Exception as error:
+            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
 
 # add the extension to the bot
 async def setup(bot: commands.Bot) -> None:
