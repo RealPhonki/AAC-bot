@@ -1,5 +1,6 @@
 # external imports
 from PIL import Image, ImageDraw
+from chess import pgn
 import chess
 
 # builtin imports
@@ -122,12 +123,12 @@ class ChessHandler:
     def get_pgn(self) -> str:
         """ Returns the pgn of the board """
         # create chess game instance
-        game = chess.pgn.Game()
+        game = pgn.Game()
 
         # set metadata attributes
         game.headers["Event"] = "Alliance Academy Experimental Chess Event"
         game.headers["Site"] = "https://discord.com"
-        game.headers["Date"] = datetime.now().strftime("%Y-%m-%d")
+        game.headers["Date"] = datetime.now().strftime("%d-%m-%Y")
         game.headers["Round"] = str(self.game_number)
         game.headers["White"] = "White team"
         game.headers["Black"] = "Black team"
@@ -154,7 +155,7 @@ class ChessHandler:
             game.headers["Result"] = self.board.result()
 
         # return the pgn
-        return game.accept(chess.pgn.StringExporter())
+        return game.accept(pgn.StringExporter())
 
     def start_game(self, game_number, fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") -> None:
         """ Starts a game of chess. """
@@ -191,5 +192,5 @@ class ChessHandler:
         """
         Checks if there is a tie in the voting pool.
         """
-        most_votes = max(self.vote_sum.values())
-        return sum(1 for votes in self.vote_sum.values() if votes == most_votes) != 1
+        most_votes = max(self.vote_pool.values())
+        return sum(1 for votes in self.vote_pool.values() if votes == most_votes) != 1
