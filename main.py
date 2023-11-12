@@ -33,6 +33,7 @@ class DiscordBot(commands.Bot):
             embed_message.add_field(name = message, value = "")
             embed_message.set_author(name = f"Requested by {interaction.user.name}", icon_url = interaction.user.avatar)
             await interaction.response.send_message(embed = embed_message)
+            
         except Exception as error:
             self.logger.error(f"{type(error).__name__}: {error}")
 

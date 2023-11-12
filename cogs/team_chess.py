@@ -17,6 +17,7 @@ class TeamChess(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         # alias
         self.bot = bot
+        self.logger = bot.logger
 
         # metadata attributes
         config = self.load_config()
@@ -59,7 +60,7 @@ class TeamChess(commands.Cog):
                 outfile.write(json_object)
         
         except Exception as error:
-            self.bot.logger.error(f"Failed to dump config:\n{type(error).__name__}:{error}")
+            self.logger.error(f"Failed to dump config:\n{type(error).__name__}:{error}")
             print_exc()
 
     def save_game(self, pgn: str) -> None:
@@ -70,7 +71,7 @@ class TeamChess(commands.Cog):
                 f.write(pgn)
         
         except Exception as error:
-            self.bot.logger.error(f"Failed to save pgn data:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Failed to save pgn data:\n{type(error).__name__}: {error}")
             print_exc()
 
     async def end_game(self, interaction: discord.Interaction) -> None:
@@ -109,7 +110,7 @@ class TeamChess(commands.Cog):
                     await self.end_game(interaction)
         
         except Exception as error:
-            self.bot.logger.error(f"Error in 'try_popular_move', {type(error).__name__}: {error}")
+            self.logger.error(f"Error in 'try_popular_move', {type(error).__name__}: {error}")
             print_exc()
     
     def get_board_embed(self) -> Tuple[discord.Embed, discord.File]:
@@ -124,7 +125,7 @@ class TeamChess(commands.Cog):
             return embed_message, board_image
 
         except Exception as error:
-            self.bot.logger.error(f"Error in 'get_board_embed', {type(error).__name__}: {error}")
+            self.logger.error(f"Error in 'get_board_embed', {type(error).__name__}: {error}")
 
     """ ----- Admin commands ------ """
     @app_commands.command(name = "start_game", description = "(Admins only) \nStarts a game of team chess.")
@@ -137,7 +138,7 @@ class TeamChess(commands.Cog):
     async def start_game(self, interaction: discord.Interaction, mix_teams: app_commands.Choice[int], vote_minimum: str = "2"):
         try:
             # debug
-            self.bot.logger.info(f"{interaction.user.name} used command '/start_game {mix_teams.value} {vote_minimum}'")
+            self.logger.info(f"{interaction.user.name} used command '/start_game {mix_teams.value} {vote_minimum}'")
 
             # check if the user has admin
             is_admin = await self.bot.check_admin(interaction)
@@ -171,7 +172,7 @@ class TeamChess(commands.Cog):
                     # remove them from their old team
                     for team in self.TEAMS:
                         await member.remove_roles(discord.utils.get(interaction.guild.roles, name=team))
-                    self.bot.logger.info(f"Removed roles {self.TEAMS} from {member.name}")
+                    self.logger.info(f"Removed roles {self.TEAMS} from {member.name}")
 
                     # avoid granting roles to bots
                     if "bots" in [role.name for role in interaction.user.roles]:
@@ -180,21 +181,21 @@ class TeamChess(commands.Cog):
                     # grant them a new team
                     new_team = discord.utils.get(interaction.guild.roles, name=random.choice(self.TEAMS))
                     await member.add_roles(new_team)
-                    self.bot.logger.info(f"Granted role '{team}' to {member.name}")
+                    self.logger.info(f"Granted role '{team}' to {member.name}")
             
             # display the board
             embed, board_image = self.get_board_embed()
             await interaction.followup.send(embed=embed, file=board_image)
 
         except Exception as error:
-            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
             print_exc()
     
     @app_commands.command(name = "end_game", description = "(Admins only) \nEnds the currently active game of team chess.")
     async def end_game_command(self, interaction: discord.Interaction) -> None:
         try:
             # debug
-            self.bot.logger.info(f"{interaction.user.name} used command '/end_game'")
+            self.logger.info(f"{interaction.user.name} used command '/end_game'")
 
             # check if the user has admin
             is_admin = await self.bot.check_admin(interaction)
@@ -216,14 +217,14 @@ class TeamChess(commands.Cog):
             await self.end_game(interaction)
 
         except Exception as error:
-            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
             print_exc()
 
     @app_commands.command(name = "set_tc_channel", description = "(Admins only) \nSets the channel designated for team chess")
     async def set_tc_channel(self, interaction: discord.Interaction, channel_id: str):
         try:
             # debug
-            self.bot.logger.info(f"{interaction.user.name} used command '/set_tc_channel {channel_id}'")
+            self.logger.info(f"{interaction.user.name} used command '/set_tc_channel {channel_id}'")
 
             # check if the user has admin
             is_admin = await self.bot.check_admin(interaction)
@@ -253,7 +254,7 @@ class TeamChess(commands.Cog):
             await self.bot.send_command_embed(interaction, "/set_tc_channel", f"Team chess channel has been set to '{self.bot.get_channel(self.channel_id)}'")
 
         except Exception as error:
-            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
             print_exc()
 
     """ ----- User commands ----- """
@@ -261,7 +262,7 @@ class TeamChess(commands.Cog):
     async def vote(self, interaction: discord.Interaction, move: str) -> None:
         try:
             # debug
-            self.bot.logger.info(f"{interaction.user.name} used command '/vote {move}'")
+            self.logger.info(f"{interaction.user.name} used command '/vote {move}'")
 
             # check if the command has been run in the correct channel
             if interaction.channel_id != self.channel_id:
@@ -298,14 +299,14 @@ class TeamChess(commands.Cog):
                 await self.try_popular_move(interaction)
 
         except Exception as error:
-            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
             print_exc()
     
     @app_commands.command(name="show_votes", description = "Displays the voting pool.")
     async def show_votes(self, interaction: discord.Interaction) -> None:
         try:
             # debug
-            self.bot.logger.info(f"{interaction.user.name} used command '/show_votes'")
+            self.logger.info(f"{interaction.user.name} used command '/show_votes'")
 
             # check if the command has been run in the correct channel
             if interaction.channel_id != self.channel_id:
@@ -335,7 +336,7 @@ class TeamChess(commands.Cog):
                 await interaction.response.send_message(embed = embed_message)
 
         except Exception as error:
-            self.bot.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
+            self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
             print_exc()
 
 # when the bot.load_extension method is called, this function will be called
