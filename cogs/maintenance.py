@@ -6,6 +6,9 @@ from discord.ext import commands
 # builtin imports
 import os
 
+# local imports
+from helper import format_text_left
+
 class Maintenance(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -133,7 +136,9 @@ class Maintenance(commands.Cog):
 
             # parse the output from the file contents
             for line_number in range(start, stop + 1):
-                new_content = f"{line_number} | {file_contents[line_number - 1]}"
+                # format text
+                line_header = format_text_left(text = str(line_number), width = len(str(stop + 1)))
+                new_content = f"{line_header} | {file_contents[line_number - 1]}"
 
                 # truncate the contents if it is longer than the discord character limit
                 if len(output + new_content + "```") > 2000:
