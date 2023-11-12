@@ -41,11 +41,11 @@ class DiscordBot(commands.Bot):
 
     def load_config(self) -> dict:
         """
-        Loads config.json as a json file and returns the contents as a dictionary.
+        Loads bot_config.json as a python dictionary and returns the contents.
         """
         try:
-            with open("config.json") as file:
-                return json_load(file)
+            with open("config/bot_config.json") as f:
+                return json_load(f)
             
         except Exception as error:
             raise FileNotFoundError(f"{type(error).__name__}: {error}")
