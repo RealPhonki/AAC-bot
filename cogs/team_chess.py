@@ -74,13 +74,14 @@ class TeamChess(commands.Cog):
             self.logger.error(f"Failed to save pgn data:\n{type(error).__name__}: {error}")
             print_exc()
 
-    async def end_game(self, interaction: discord.Interaction) -> None:
+    async def end_game(self, interaction: discord.Interaction, save_result = True) -> None:
         game_result = self.chess_handler.end_game()
 
         # save the game result to memory
-        self.save_game(game_result)
-        self.game_number += 1
-        self.dump_config()
+        if save_result:
+            self.save_game(game_result)
+            self.game_number += 1
+            self.dump_config()
 
         # send the game result
         embed_message = discord.Embed(title = "GAME OVER:", color = discord.Color.gold())
@@ -94,7 +95,7 @@ class TeamChess(commands.Cog):
             if self.chess_handler.check_vote_tie():
                 embed_message = discord.Embed(title = f"There is a tie in votes!", color = discord.Color.gold())
                 most_votes = max(self.chess_handler.vote_pool.values())
-                [embed_message.add_field(name = move, value = votes, inline = False) for move, votes in self.chess_handler.vote_pool.items() if votes == most_votes]
+                [embed_message.add_field(name = f"{move}: {votes}", value = "", inline = False) for move, votes in self.chess_handler.vote_pool.items() if votes == most_votes]
                 await interaction.followup.send(embed = embed_message)
             
             else:
@@ -130,10 +131,7 @@ class TeamChess(commands.Cog):
     """ ----- Admin commands ------ """
     @app_commands.command(name = "start_game", description = "(Admins only) \nStarts a game of team chess.")
     @app_commands.describe(mix_teams = "Reasign teams to all users.")
-    @app_commands.choices(mix_teams = [
-        app_commands.Choice(name = "True", value = True),
-        app_commands.Choice(name = "False", value = False)
-    ])
+    @app_commands.choices(mix_teams = [app_commands.Choice(name = "True", value = True), app_commands.Choice(name = "False", value = False)])
     @app_commands.describe(vote_minimum="Sets the minimum number of votes required to play a move. This value is 2 by default.")
     async def start_game(self, interaction: discord.Interaction, mix_teams: app_commands.Choice[int], vote_minimum: str = "2"):
         try:
@@ -192,7 +190,8 @@ class TeamChess(commands.Cog):
             print_exc()
     
     @app_commands.command(name = "end_game", description = "(Admins only) \nEnds the currently active game of team chess.")
-    async def end_game_command(self, interaction: discord.Interaction) -> None:
+    @app_commands.choices(save_game = [app_commands.Choice(name = "True", value = True), app_commands.Choice(name = "False", value = False)])
+    async def end_game_command(self, interaction: discord.Interaction, save_game: app_commands.Choice[int] = True) -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/end_game'")
@@ -214,7 +213,7 @@ class TeamChess(commands.Cog):
             
             # end the game
             await interaction.response.send_message("Ending game...")
-            await self.end_game(interaction)
+            await self.end_game(interaction, save_game.value)
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
@@ -331,9 +330,9 @@ class TeamChess(commands.Cog):
             else:
                 print("building embed")
                 embed_message = discord.Embed(title = f"Voting pool:", color = discord.Color.gold())
-                [embed_message.add_field(name = f"{move}: votes", value = "", inline = False) for move, votes in non_zero_votes.items()]
+                [embed_message.add_field(name = f"{move}: {votes}", value = "", inline = False) for move, votes in non_zero_votes.items()]
                 print('sending embed')
-                await interaction.response.send_message(embed = embed_message)
+                await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
