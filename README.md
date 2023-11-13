@@ -12,6 +12,3 @@
 
 ## Description
 This is a discord bot created for a chess club that I manage. It creates chess games that can be played through discord.
-
-
-test modification
