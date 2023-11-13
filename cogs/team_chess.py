@@ -166,6 +166,8 @@ class TeamChess(commands.Cog):
                     # remove them from their old team
                     for team in self.TEAMS:
                         await member.remove_roles(discord.utils.get(interaction.guild.roles, name=team))
+
+                    await interaction.followup.send(f"Removed roles {self.TEAMS} from {member.name}")
                     self.logger.info(f"Removed roles {self.TEAMS} from {member.name}")
 
                     # avoid granting roles to bots
@@ -176,6 +178,7 @@ class TeamChess(commands.Cog):
                     new_team = discord.utils.get(interaction.guild.roles, name=random.choice(self.TEAMS))
                     await member.add_roles(new_team)
                     self.logger.info(f"Granted role '{team}' to {member.name}")
+                    await interaction.followup.send(f"Granted role '{team}' to {member.name}")
             
             # display the board
             embed, board_image = self.get_board_embed()
@@ -312,8 +315,6 @@ class TeamChess(commands.Cog):
             
             # only grab relevant voting information
             non_zero_votes = {move: votes for move, votes in self.chess_handler.vote_pool.items() if votes != 0}
-
-            print("collected non-zero votes")
 
             # if there are no votes then send a message that indicates such
             if len(non_zero_votes) == 0:
