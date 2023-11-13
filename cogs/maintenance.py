@@ -74,7 +74,7 @@ class Maintenance(commands.Cog):
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
     
-    @app_commands.command(name = "view_file", description = "(Admins only) \nViews a file in the current directory.")
+    @app_commands.command(name = "view_file", description = "(Admins only) \nViews a file in the current directory. Files are often truncated due to the discord character limit.")
     async def view_file(self, interaction: discord.Interaction, file_name: str, start: str, stop: str) -> None:
         try:
             # debug
@@ -88,7 +88,7 @@ class Maintenance(commands.Cog):
             # check if the user is not me..
             if interaction.user.id != self.bot.CONFIG["owner"]:
                 ping_owner = "<@" + str(self.bot.CONFIG["owner"]) + ">"
-                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"Naaaaah, why tf u trying to look through my files u idiot...", discord.Color.red())
+                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"Nah why tf u trying to look through my files u monkey", discord.Color.red())
                 await interaction.followup.send(f"{ping_owner} {interaction.user.name} tried to look at your files..")
                 return
             
@@ -111,13 +111,8 @@ class Maintenance(commands.Cog):
             if not start.isnumeric() or not stop.isnumeric():
                 await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"Non-numeric range: ({start}, {stop})", discord.Color.red())
                 return
-            
-            # create an embed message
-            embed_message = discord.Embed(title = f"/view_file {file_name} {start} {stop}", color = discord.Color.red())
-            embed_message.set_author(name = f"Requested by {interaction.user.name}", icon_url = interaction.user.avatar)
-            await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
-            # clamp the range
+            # interpret the range
             start = max(1, int(start))
             stop = min(len(file_contents), int(stop))
 
@@ -138,7 +133,6 @@ class Maintenance(commands.Cog):
 
                 # truncate the contents if it is longer than the discord character limit
                 if len(output + new_content + "```") > 2000:
-                    await interaction.followup.send(f"*File truncated at line {line_number - 1}*", ephemeral = True)
                     break
 
                 output += new_content
