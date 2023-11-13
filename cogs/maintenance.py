@@ -138,7 +138,8 @@ class Maintenance(commands.Cog):
             for line_number in range(start, stop + 1):
                 # format text
                 line_header = format_text_left(text = str(line_number), width = len(str(stop + 1)))
-                new_content = f"{line_header} | {file_contents[line_number - 1]}"
+                line_contents = file_contents[line_number - 1].replace("    ", "  ")
+                new_content = f"{line_header} | {line_contents}"
 
                 # truncate the contents if it is longer than the discord character limit
                 if len(output + new_content + "```") > 2000:
