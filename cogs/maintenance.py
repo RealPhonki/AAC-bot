@@ -134,8 +134,8 @@ class Maintenance(commands.Cog):
 
             for line_number, line_contents in enumerate(file_contents):
                 # format the output
-                formatted_line_number = start + line_number + 1 if start > 0 else (file_length + start) + (line_number + 1)
-                format_width = len(str(stop + 1)) if stop > 0 else len(str(file_length + stop + 1))
+                formatted_line_number = start + line_number + 1 if start >= 0 else (file_length + start) + (line_number + 1)
+                format_width = len(str(stop + 1)) if stop >= 0 else len(str(file_length + stop + 1))
                 line_header = format_text_left(text = str(formatted_line_number), width = format_width)
                 content = line_contents.replace("    ", "  ")
 
