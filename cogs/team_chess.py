@@ -24,7 +24,6 @@ class TeamChess(commands.Cog):
         self.channel_id    = config["channel_id"]
         self.teams         = config["teams"]
         self.game_number   = config["game_number"]
-        self.debug_channel = self.bot.get_channel(config["debug_channel"])
 
         # attributes
         self.vote_minimum = 0
@@ -168,7 +167,6 @@ class TeamChess(commands.Cog):
                     for team in self.teams:
                         await member.remove_roles(discord.utils.get(interaction.guild.roles, name=team))
                     
-                    await self.debug_channel.send(f"Removed roles {self.teams} from {member.name}")
                     self.logger.info(f"Removed roles {self.teams} from {member.name}")
 
                     # avoid granting roles to bots
@@ -179,7 +177,6 @@ class TeamChess(commands.Cog):
                     new_team = discord.utils.get(interaction.guild.roles, name=random.choice(self.teams))
                     await member.add_roles(new_team)
                     self.logger.info(f"Granted role '{team}' to {member.name}")
-                    await self.debug_channel.send(f"Granted role '{team}' to {member.name}")
             
             # display the board
             embed, board_image = self.get_board_embed()
