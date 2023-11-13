@@ -124,13 +124,18 @@ class Maintenance(commands.Cog):
             # extract the lines
             file_contents = file_contents[start : stop]
 
+            # create discord embed
+            embed_message = discord.Embed(color = discord.Color.green())
+
             # select the formatting type
             if file_name.endswith(".py"):
-                output = "```python\n"
+                file_type = "```python\n"
             elif file_name.endswith(".json"):
-                output = "```json\n"
+                file_type = "```json\n"
             else:
-                output = "```\n"
+                file_type = "```\n"
+            
+            output = file_type
 
             for line_number, line_contents in enumerate(file_contents):
                 # format the output
@@ -138,23 +143,24 @@ class Maintenance(commands.Cog):
                 format_width = len(str(stop + 1)) if stop >= 0 else len(str(file_length + stop + 1))
                 line_header = format_text_left(text = str(formatted_line_number), width = format_width)
                 content = line_contents.replace("    ", "  ")
-
                 new_content = f"{line_header} | {content}"
 
-                # truncate if the text is too long
-                if len(output + new_content + "```") > 2000:
-                    break
+                # end field and continue
+                if len(output + new_content + "```") > 1024:
+                    embed_message.add_field(name = "", value = output + "```", inline = False)
+                    output = file_type + new_content
 
                 # append the newly formatted content
                 output += new_content
             output += "```"
+            embed_message.add_field(name = "", value = output, inline = False)
 
             # send the file
-            await interaction.response.send_message(output, ephemeral = True)
+            await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
-    
+
     @app_commands.command(name = "git_pull", description = "(Admins only) \nUpdates the code on the host device.")
     async def git_pull(self, interaction: discord.Interaction) -> None:
         try:
