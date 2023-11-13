@@ -5,6 +5,7 @@ from discord.ext import commands
 
 # builtin imports
 from traceback import print_exc
+import subprocess
 import os
 
 # local imports
@@ -88,9 +89,7 @@ class Maintenance(commands.Cog):
             
             # check if the user is not me..
             if interaction.user.id != self.bot.CONFIG["owner"]:
-                ping_owner = "<@" + str(self.bot.CONFIG["owner"]) + ">"
-                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"Nah why tf u trying to look through my files u monkey", discord.Color.red())
-                await interaction.followup.send(f"{ping_owner} {interaction.user.name} tried to look at your files..")
+                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"bad boy", discord.Color.red())
                 return
             
             file_path = os.path.join(self.directory, file_name)
@@ -152,6 +151,33 @@ class Maintenance(commands.Cog):
 
             # send the file
             await interaction.response.send_message(output, ephemeral = True)
+
+        except Exception as error:
+            self.logger.error(f"{type(error)}: {error}")
+            print_exc()
+    
+    @app_commands.command(name = "git_pull", description = "(Admins only) \nUpdates the code on the host device.")
+    async def git_pull(self, interaction: discord.Interaction) -> None:
+        try:
+            # debug
+            self.logger.warn(f"{interaction.user.name} used command '/git_pull'")
+
+            # check if the user has admin
+            is_admin = await self.bot.check_admin(interaction)
+            if not is_admin:
+                return
+            
+            # check if the user is not me..
+            if interaction.user.id != self.bot.CONFIG["owner"]:
+                await self.bot.send_command_embed(interaction, f"/git_pull", f"why", discord.Color.red())
+                return
+            
+            try:
+                subprocess.run(["git", "pull"], check=True)
+                await self.bot.send_command_embed(interaction, f"/git_pull", f"Success", discord.Color.red())
+            
+            except subprocess.CalledProcessError as error:
+                await self.bot.send_command_embed(interaction, f"/git_pull", f"{type(error).__name__}: {error}", discord.Color.red())
 
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
