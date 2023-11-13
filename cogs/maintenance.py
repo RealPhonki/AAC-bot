@@ -4,8 +4,8 @@ from discord import app_commands
 from discord.ext import commands
 
 # builtin imports
-from traceback import print_exc
 import subprocess
+import sys
 import os
 
 # local imports
@@ -154,7 +154,6 @@ class Maintenance(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
-            print_exc()
     
     @app_commands.command(name = "git_pull", description = "(Admins only) \nUpdates the code on the host device.")
     async def git_pull(self, interaction: discord.Interaction) -> None:
@@ -181,7 +180,30 @@ class Maintenance(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
-            print_exc()
+
+    @app_commands.command(name = "restart", description = "(Admins only) \nRestarts the host device.")
+    async def restart(self, interaction: discord.Interaction) -> None:
+        try:
+            # debug
+            self.logger.warn(f"{interaction.user.name} used command '/restart'")
+
+            # check if the user has admin
+            is_admin = await self.bot.check_admin(interaction)
+            if not is_admin:
+                return
+            
+            # check if the user is not me..
+            if interaction.user.id != self.bot.CONFIG["owner"]:
+                await self.bot.send_command_embed(interaction, f"/restart", f"dude what are you doing", discord.Color.red())
+                return
+            
+            await self.bot.send_command_embed(interaction, f"/git_pull", f"Attempting restart...", discord.Color.red())
+            
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
+
+        except Exception as error:
+            self.logger.error(f"{type(error)}: {error}")
 
 # when the bot.load_extension method is called, this function will be called
 async def setup(bot: commands.Bot) -> None:
