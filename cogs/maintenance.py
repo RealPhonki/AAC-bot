@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 
 # builtin imports
+from traceback import print_exc
 import os
 
 # local imports
@@ -74,11 +75,11 @@ class Maintenance(commands.Cog):
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
     
-    @app_commands.command(name = "view_file", description = "(Admins only) \nViews a file in the current directory. Files are often truncated due to the discord character limit.")
-    async def view_file(self, interaction: discord.Interaction, file_name: str, start: str, stop: str) -> None:
+    @app_commands.command(name = "view_file", description = "(Admins only) \nViews a file in the current directory. (THIS GETS AFFECTED BY CHARACTER LIMIT)")
+    async def view_file(self, interaction: discord.Interaction, file_name: str, start: str = None, stop: str = None) -> None:
         try:
             # debug
-            self.logger.warn(f"{interaction.user.name} used command '/view_file {file_name}'")
+            self.logger.warn(f"{interaction.user.name} used command '/view_file {file_name} {start} {stop}'")
 
             # check if the user has admin
             is_admin = await self.bot.check_admin(interaction)
@@ -105,16 +106,24 @@ class Maintenance(commands.Cog):
 
             # open the file
             with open(file_path, "r") as f:
+                # open the file
                 file_contents = f.readlines()
 
-            # check if the range is numerical
-            if not start.isnumeric() or not stop.isnumeric():
-                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f"Non-numeric range: ({start}, {stop})", discord.Color.red())
+            # get the file length
+            file_length = len(file_contents)
+
+            # check if the range is valid
+            try:
+                # convert the text into integers
+                start = int(start) if start else 0
+                stop = int(stop) if stop else file_length
+
+            except:
+                await self.bot.send_command_embed(interaction, f"/view_file {file_name} {start} {stop}", f'Invalid range "({start}, {stop})"', discord.Color.red())
                 return
 
-            # interpret the range
-            start = max(1, int(start))
-            stop = min(len(file_contents), int(stop))
+            # extract the lines
+            file_contents = file_contents[start : stop]
 
             # select the formatting type
             if file_name.endswith(".py"):
@@ -124,25 +133,29 @@ class Maintenance(commands.Cog):
             else:
                 output = "```\n"
 
-            # parse the output from the file contents
-            for line_number in range(start, stop + 1):
-                # format text
-                line_header = format_text_left(text = str(line_number), width = len(str(stop + 1)))
-                line_contents = file_contents[line_number - 1].replace("    ", "  ")
-                new_content = f"{line_header} | {line_contents}"
+            for line_number, line_contents in enumerate(file_contents):
+                # format the output
+                formatted_line_number = start + line_number + 1 if start > 0 else (file_length + start) + (line_number + 1)
+                format_width = len(str(stop + 1)) if stop > 0 else len(str(file_length + stop + 1))
+                line_header = format_text_left(text = str(formatted_line_number), width = format_width)
+                content = line_contents.replace("    ", "  ")
 
-                # truncate the contents if it is longer than the discord character limit
+                new_content = f"{line_header} | {content}"
+
+                # truncate if the text is too long
                 if len(output + new_content + "```") > 2000:
                     break
 
+                # append the newly formatted content
                 output += new_content
             output += "```"
 
             # send the file
-            await interaction.followup.send(output, ephemeral = True)
+            await interaction.response.send_message(output, ephemeral = True)
 
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
+            print_exc()
 
 # when the bot.load_extension method is called, this function will be called
 async def setup(bot: commands.Bot) -> None:
