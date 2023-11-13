@@ -20,10 +20,11 @@ class TeamChess(commands.Cog):
 
         # metadata attributes
         config = self.load_config()
-        self.guild_id    = config["guild_id"]
-        self.channel_id  = config["channel_id"]
-        self.teams       = config["teams"]
-        self.game_number = config["game_number"]
+        self.guild_id      = config["guild_id"]
+        self.channel_id    = config["channel_id"]
+        self.teams         = config["teams"]
+        self.game_number   = config["game_number"]
+        self.debug_channel = self.bot.get_channel(config["debug_channel"])
 
         # attributes
         self.vote_minimum = 0
@@ -164,21 +165,21 @@ class TeamChess(commands.Cog):
                 await interaction.followup.send("Mixing teams...")
                 for member in interaction.guild.members:
                     # remove them from their old team
-                    for team in self.TEAMS:
+                    for team in self.teams:
                         await member.remove_roles(discord.utils.get(interaction.guild.roles, name=team))
-
-                    await interaction.followup.send(f"Removed roles {self.TEAMS} from {member.name}")
-                    self.logger.info(f"Removed roles {self.TEAMS} from {member.name}")
+                    
+                    await self.debug_channel.send(f"Removed roles {self.teams} from {member.name}")
+                    self.logger.info(f"Removed roles {self.teams} from {member.name}")
 
                     # avoid granting roles to bots
                     if "bots" in [role.name for role in interaction.user.roles]:
                         continue
 
                     # grant them a new team
-                    new_team = discord.utils.get(interaction.guild.roles, name=random.choice(self.TEAMS))
+                    new_team = discord.utils.get(interaction.guild.roles, name=random.choice(self.teams))
                     await member.add_roles(new_team)
                     self.logger.info(f"Granted role '{team}' to {member.name}")
-                    await interaction.followup.send(f"Granted role '{team}' to {member.name}")
+                    await self.debug_channel.send(f"Granted role '{team}' to {member.name}")
             
             # display the board
             embed, board_image = self.get_board_embed()
