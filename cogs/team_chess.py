@@ -267,10 +267,11 @@ class TeamChess(commands.Cog):
                 return
 
             # check which side it is to play and whether or not the user is on the correct team
-            if self.chess_handler.turn and "white" not in [role.name for role in interaction.user.roles]:
-                await interaction.response.send_message(f"It's not your turn to play! Try again later!", ephemeral = True)
-                return
-            
+            if self.chess_handler.turn:
+                if "white" not in [role.name for role in interaction.user.roles]:
+                    await interaction.response.send_message(f"It's not your turn to play! Try again later!", ephemeral = True)
+                    return
+                
             elif "black" not in [role.name for role in interaction.user.roles]:
                 await interaction.response.send_message(f"It's not your turn to play! Try again later!", ephemeral = True)
                 return
