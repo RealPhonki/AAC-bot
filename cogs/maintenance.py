@@ -59,22 +59,17 @@ class Maintenance(commands.Cog):
                 await self.bot.send_command_embed(interaction, f"/cd ..", "Success", discord.Color.red())
                 return
 
+            # check if the path is valid
             if os.path.isdir(os.path.join(self.directory, directory)):
-                if self.directory == "":
-                    self.directory = directory
-                else:
-                    self.directory = os.path.join(self.directory, directory)
-                
+                self.directory = directory if self.directory == "" else os.path.join(self.directory, directory)
                 await self.bot.send_command_embed(interaction, f"/cd {directory}", f"Success", discord.Color.red())
-                return
         
             else:
+                # send a different message depending on what kind of invalid path they inputted
                 if os.path.exists(os.path.join(self.directory, directory)):
                     await self.bot.send_command_embed(interaction, f"/cd {directory}", f"cd: not a directory: {directory}", discord.Color.red())
-                    return
                 else:
                     await self.bot.send_command_embed(interaction, f"/cd {directory}", f"cd: no such file or directory: {directory}", discord.Color.red())
-                    return
             
         except Exception as error:
             self.logger.error(f"{type(error)}: {error}")
