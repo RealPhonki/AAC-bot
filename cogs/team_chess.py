@@ -6,7 +6,6 @@ from discord.ext import commands
 # builtin imports
 from json import load as json_load, dumps as json_dumps
 from datetime import datetime
-from traceback import print_exc
 from typing import Tuple
 import random
 
@@ -61,7 +60,6 @@ class TeamChess(commands.Cog):
         
         except Exception as error:
             self.logger.error(f"Failed to dump config:\n{type(error).__name__}:{error}")
-            print_exc()
 
     def save_game(self, pgn: str) -> None:
         """ Saves a pgn the games directory with the date as the file name. """
@@ -72,7 +70,6 @@ class TeamChess(commands.Cog):
         
         except Exception as error:
             self.logger.error(f"Failed to save pgn data:\n{type(error).__name__}: {error}")
-            print_exc()
 
     async def end_game(self, interaction: discord.Interaction, save_result = True) -> None:
         game_result = self.chess_handler.end_game()
@@ -112,7 +109,6 @@ class TeamChess(commands.Cog):
         
         except Exception as error:
             self.logger.error(f"Error in 'try_popular_move', {type(error).__name__}: {error}")
-            print_exc()
     
     def get_board_embed(self) -> Tuple[discord.Embed, discord.File]:
         """ Creates a discord.Embed and a discord.File object that represents the board state and returns it. """
@@ -187,7 +183,6 @@ class TeamChess(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
-            print_exc()
     
     @app_commands.command(name = "end_game", description = "(Admins only) \nEnds the currently active game of team chess.")
     @app_commands.choices(save_game = [app_commands.Choice(name = "True", value = True), app_commands.Choice(name = "False", value = False)])
@@ -217,7 +212,6 @@ class TeamChess(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
-            print_exc()
 
     @app_commands.command(name = "set_tc_channel", description = "(Admins only) \nSets the channel designated for team chess")
     async def set_tc_channel(self, interaction: discord.Interaction, channel_id: str):
@@ -254,7 +248,6 @@ class TeamChess(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
-            print_exc()
 
     """ ----- User commands ----- """
     @app_commands.command(name = "vote", description = "Adds a vote to the voting pool in a game of team chess.")
@@ -299,7 +292,6 @@ class TeamChess(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
-            print_exc()
     
     @app_commands.command(name="show_votes", description = "Displays the voting pool.")
     async def show_votes(self, interaction: discord.Interaction) -> None:
@@ -336,7 +328,6 @@ class TeamChess(commands.Cog):
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
-            print_exc()
 
 # when the bot.load_extension method is called, this function will be called
 async def setup(bot: commands.Bot) -> None:
