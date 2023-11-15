@@ -1,0 +1,102 @@
+[2023-11-14 05:55:24] [INFO    ] discord_bot: Loaded command 'sync'
+[2023-11-14 05:55:24] [INFO    ] discord_bot: Loaded extension 'help'
+[2023-11-14 05:55:24] [INFO    ] discord_bot: Loaded extension 'maintenance'
+[2023-11-14 05:55:24] [INFO    ] discord_bot: Loaded extension 'team_chess'
+[2023-11-14 05:55:28] [INFO    ] discord_bot: Logged in as AAC Bot
+[2023-11-14 05:55:28] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-11-14 05:55:28] [INFO    ] discord_bot: Python version: 3.11.6
+[2023-11-14 05:55:28] [INFO    ] discord_bot: Running on: Windows 10 (nt)
+[2023-11-14 05:55:28] [INFO    ] discord_bot: -------------------
+[2023-11-14 05:56:35] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 05:56:47] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-14 05:56:57] [INFO    ] discord_bot: slamsandwich19 used command '/start_game True 1'
+[2023-11-14 05:56:59] [INFO    ] discord_bot: Removed roles ['white', 'black'] from Dyno
+[2023-11-14 05:56:59] [INFO    ] discord_bot: Granted role 'black' to Dyno
+[2023-11-14 05:57:00] [INFO    ] discord_bot: Removed roles ['white', 'black'] from Censor Bot
+[2023-11-14 05:57:00] [INFO    ] discord_bot: Granted role 'black' to Censor Bot
+[2023-11-14 05:57:00] [INFO    ] discord_bot: Removed roles ['white', 'black'] from choppytester484
+[2023-11-14 05:57:01] [INFO    ] discord_bot: Granted role 'black' to choppytester484
+[2023-11-14 05:57:10] [INFO    ] discord_bot: Removed roles ['white', 'black'] from jamaicanbuttfondler
+[2023-11-14 05:57:10] [INFO    ] discord_bot: Granted role 'black' to jamaicanbuttfondler
+[2023-11-14 05:57:11] [INFO    ] discord_bot: Removed roles ['white', 'black'] from .nitesh
+[2023-11-14 05:57:12] [INFO    ] discord_bot: Granted role 'black' to .nitesh
+[2023-11-14 05:57:12] [INFO    ] discord_bot: Removed roles ['white', 'black'] from ansh_n234
+[2023-11-14 05:57:12] [INFO    ] discord_bot: Granted role 'black' to ansh_n234
+[2023-11-14 05:57:20] [INFO    ] discord_bot: Removed roles ['white', 'black'] from Lichess Bot
+[2023-11-14 05:57:20] [INFO    ] discord_bot: Granted role 'black' to Lichess Bot
+[2023-11-14 05:57:20] [INFO    ] discord_bot: Removed roles ['white', 'black'] from swordsmenplayz
+[2023-11-14 05:57:21] [INFO    ] discord_bot: Granted role 'black' to swordsmenplayz
+[2023-11-14 05:57:21] [INFO    ] discord_bot: Removed roles ['white', 'black'] from darkgenius2409
+[2023-11-14 05:57:21] [INFO    ] discord_bot: Granted role 'black' to darkgenius2409
+[2023-11-14 05:57:22] [INFO    ] discord_bot: Removed roles ['white', 'black'] from arya4k
+[2023-11-14 05:57:30] [INFO    ] discord_bot: Granted role 'black' to arya4k
+[2023-11-14 05:57:31] [INFO    ] discord_bot: Removed roles ['white', 'black'] from shrey177
+[2023-11-14 05:57:31] [INFO    ] discord_bot: Granted role 'black' to shrey177
+[2023-11-14 05:57:31] [INFO    ] discord_bot: Removed roles ['white', 'black'] from vexable_
+[2023-11-14 05:57:31] [INFO    ] discord_bot: Granted role 'black' to vexable_
+[2023-11-14 05:57:31] [INFO    ] discord_bot: Removed roles ['white', 'black'] from ishaannagireddi1123
+[2023-11-14 05:57:32] [INFO    ] discord_bot: Granted role 'black' to ishaannagireddi1123
+[2023-11-14 05:57:40] [INFO    ] discord_bot: Removed roles ['white', 'black'] from chessoperator
+[2023-11-14 05:57:40] [INFO    ] discord_bot: Granted role 'black' to chessoperator
+[2023-11-14 05:57:41] [INFO    ] discord_bot: Removed roles ['white', 'black'] from praddy1122
+[2023-11-14 05:57:41] [INFO    ] discord_bot: Granted role 'black' to praddy1122
+[2023-11-14 05:57:41] [INFO    ] discord_bot: Removed roles ['white', 'black'] from iwasjusthere
+[2023-11-14 05:57:41] [INFO    ] discord_bot: Granted role 'black' to iwasjusthere
+[2023-11-14 05:57:47] [WARNING ] discord_bot: slamsandwich19 used command '/view_file discord.log -10 None'
+[2023-11-14 05:57:50] [INFO    ] discord_bot: Removed roles ['white', 'black'] from MasterMind101
+[2023-11-14 05:57:50] [INFO    ] discord_bot: Granted role 'black' to MasterMind101
+[2023-11-14 05:57:50] [INFO    ] discord_bot: Removed roles ['white', 'black'] from shik_shak_shok3
+[2023-11-14 05:57:51] [INFO    ] discord_bot: Granted role 'black' to shik_shak_shok3
+[2023-11-14 05:57:51] [INFO    ] discord_bot: Removed roles ['white', 'black'] from slamsandwich19
+[2023-11-14 05:57:51] [INFO    ] discord_bot: Granted role 'black' to slamsandwich19
+[2023-11-14 05:57:51] [INFO    ] discord_bot: Removed roles ['white', 'black'] from piggledigglehiggle
+[2023-11-14 05:58:00] [INFO    ] discord_bot: Granted role 'black' to piggledigglehiggle
+[2023-11-14 05:58:01] [INFO    ] discord_bot: Removed roles ['white', 'black'] from scythe_202
+[2023-11-14 05:58:01] [INFO    ] discord_bot: Granted role 'black' to scythe_202
+[2023-11-14 05:58:01] [INFO    ] discord_bot: Removed roles ['white', 'black'] from beluga_vr.
+[2023-11-14 05:58:01] [INFO    ] discord_bot: Granted role 'black' to beluga_vr.
+[2023-11-14 05:58:02] [INFO    ] discord_bot: Removed roles ['white', 'black'] from barap.
+[2023-11-14 05:58:02] [INFO    ] discord_bot: Granted role 'black' to barap.
+[2023-11-14 05:58:11] [INFO    ] discord_bot: Removed roles ['white', 'black'] from Phonki
+[2023-11-14 05:58:11] [INFO    ] discord_bot: Granted role 'black' to Phonki
+[2023-11-14 05:58:11] [INFO    ] discord_bot: Removed roles ['white', 'black'] from AAC Bot
+[2023-11-14 05:58:12] [INFO    ] discord_bot: Granted role 'black' to AAC Bot
+[2023-11-14 05:58:12] [INFO    ] discord_bot: Removed roles ['white', 'black'] from phong
+[2023-11-14 05:58:12] [INFO    ] discord_bot: Granted role 'black' to phong
+[2023-11-14 05:58:27] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-14 05:58:36] [INFO    ] discord_bot: slamsandwich19 used command '/vote e5'
+[2023-11-14 05:59:18] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 05:59:57] [INFO    ] discord_bot: Phonki used command '/help'
+[2023-11-14 06:02:01] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 06:04:19] [WARNING ] discord_bot: slamsandwich19 used command '/view_file main.py -100 None'
+[2023-11-14 06:04:42] [WARNING ] discord_bot: slamsandwich19 used command '/view_file main.py None None'
+[2023-11-14 06:05:17] [INFO    ] discord_bot: slamsandwich19 used command '/ls'
+[2023-11-14 07:11:46] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 07:12:26] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 07:12:46] [INFO    ] discord_bot: slamsandwich19 used command '/ls'
+[2023-11-14 07:12:46] [ERROR   ] discord_bot: Internal command failure:
+NotFound: 404 Not Found (error code: 10062): Unknown interaction
+[2023-11-14 07:12:46] [ERROR   ] discord_bot: <class 'discord.errors.NotFound'>: 404 Not Found (error code: 10062): Unknown interaction
+[2023-11-14 07:14:28] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 07:36:34] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 07:53:30] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 08:07:14] [INFO    ] discord_bot: slamsandwich19 used command '/end_game'
+[2023-11-14 08:07:27] [INFO    ] discord_bot: slamsandwich19 used command '/start_game False 2'
+[2023-11-14 08:07:38] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-14 08:07:41] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-14 08:17:52] [INFO    ] discord_bot: darkgenius2409 used command '/help'
+[2023-11-14 09:41:03] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-14 12:07:11] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-14 12:09:43] [INFO    ] discord_bot: barap. used command '/help'
+[2023-11-14 12:09:56] [INFO    ] discord_bot: barap. used command '/vote e4'
+[2023-11-14 12:10:09] [INFO    ] discord_bot: slamsandwich19 used command '/ls'
+[2023-11-14 12:10:14] [WARNING ] discord_bot: slamsandwich19 used command '/view_file discord.log None None'
+[2023-11-14 12:10:14] [ERROR   ] discord_bot: <class 'discord.errors.HTTPException'>: 400 Bad Request (error code: 50035): Invalid Form Body
+In embeds: Embed size exceeds maximum size of 6000
+[2023-11-14 12:10:18] [INFO    ] discord_bot: barap. used command '/ls'
+[2023-11-14 12:10:47] [INFO    ] discord_bot: slamsandwich19 used command '/ls'
+[2023-11-14 12:10:59] [WARNING ] discord_bot: slamsandwich19 used command '/view_file discord.log -20 None'
+[2023-11-14 12:11:54] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 15:18:45] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 17:42:46] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-14 17:43:15] [INFO    ] discord_bot: slamsandwich19 used command '/end_game'
