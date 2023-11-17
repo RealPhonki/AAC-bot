@@ -18,7 +18,7 @@ class Maintenance(commands.Cog):
         self.directory = os.getcwd()
     
     @app_commands.command(name = "ls", description = "(Admins only) \nLists all of the files in the current directory.")
-    async def list_directory(self, interaction: discord.Interaction):
+    async def list_directory(self, interaction: discord.Interaction) -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/ls'")
@@ -45,7 +45,7 @@ class Maintenance(commands.Cog):
             self.logger.error(f"{type(error)}: {error}")
 
     @app_commands.command(name = "cd", description = "(Admins only) \nChanges the current directory.")
-    async def change_directory(self, interaction: discord.Interaction, directory: str):
+    async def change_directory(self, interaction: discord.Interaction, directory: str) -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/ls {directory}'")
