@@ -175,6 +175,71 @@ class ChessHandler:
         self.playing = False
         return self.get_pgn()
     
+    def is_possible_move(self, text: str) -> bool:
+        # remove case senstivity
+        text = text.lower()
+
+        # predefine stuff to check for
+        pieces = "kqbnrp"
+        ranks = "12345678"
+        files = "abcdefgh"
+        notation = "x="
+        suffixes = "#+"
+
+        # return true if the move is castling
+        if text in ["o-o", "o-o-o"]:
+            return True
+        
+        # limited length
+        if len(text) < 2 or len(text) > 7:
+            return False
+
+        # can only have 1 notation
+        notations = 0
+        for symbol in notation:
+            if symbol in text:
+                notations += 1
+        if notations > 1:
+            return False
+        
+        # must have at least one position
+        if not any(rank in text for rank in ranks) or not any(file in text for file in files):
+            return False
+
+        # strip suffix
+        if text[-1] in suffixes:
+            text = text[:-1]
+
+        counter = {"pieces": 1, "ranks": 0, "files": 0}
+        for index, character in enumerate(text):
+            # first character must be a piece
+            if index == 0 and character in pieces:
+                continue
+
+            # check invalid counter values
+            if (notation == 0 and counter["pieces"] > 1) or (counter["pieces"] > 2):
+                return False
+            if (notation == 0 and counter["ranks"] > 1) or (counter["ranks"] > 2):
+                return False
+            if (notation == 0 and counter["files"] > 1) or (counter["files"] > 2):
+                return False
+
+            # check if character is notation
+            if character in ranks:
+                counter["ranks"] += 1
+                continue
+
+            if character in files:
+                counter["files"] += 1
+                continue
+
+            if character in notation:
+                continue
+
+            return False
+        
+        return True
+
     def try_add_vote(self, user_id: int, move: str) -> bool:
         """
         Adds a vote to the voting pool if the move is legal.

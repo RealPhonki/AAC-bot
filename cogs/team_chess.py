@@ -7,6 +7,7 @@ from discord.ext import commands
 from json import load as json_load, dumps as json_dumps
 from datetime import datetime
 from typing import Tuple
+from traceback import print_exc
 import random
 
 # local imports
@@ -124,12 +125,75 @@ class TeamChess(commands.Cog):
         except Exception as error:
             self.logger.error(f"Error in 'get_board_embed', {type(error).__name__}: {error}")
 
+    """ ----- Events ----- """
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        try:
+            # the bot shouldn't respond to its own messages
+            if message.author == self.bot.user:
+                return
+            
+            # get message context
+            context = await self.bot.get_context(message)
+
+            # check if the move is in chess notation
+            is_chess_notation = self.chess_handler.is_possible_move(message.content)
+
+            if not is_chess_notation:
+                return
+
+            # try to play the move
+            vote_success = self.chess_handler.try_add_vote(message.author.id, message.content)
+
+            # send a message if the move is not legal
+            if not vote_success:
+                await message.channel.send(f'"{message.content}" is not a legal move!')
+                return
+            
+            # send a confirmation message otherwise
+            await message.channel.send(f'You voted for "{message.content}"!')
+            
+            # if the vote minimum has been reached then attempt to play the move with the most votes
+            if len(self.chess_handler.votes) >= self.vote_minimum:
+                # if there is a vote tie then display the moves that are tied in votes
+                if self.chess_handler.check_vote_tie():
+                    embed_message = discord.Embed(title = f"There is a tie in votes!", color = discord.Color.gold())
+                    most_votes = max(self.chess_handler.vote_pool.values())
+                    [embed_message.add_field(name = f"{move}: {votes}", value = "", inline = False) for move, votes in self.chess_handler.vote_pool.items() if votes == most_votes]
+                    await message.channel.send(embed = embed_message)
+                
+                else:
+                    # add the vote to the vote pool if there is no tie
+                    self.chess_handler.play_popular_move()
+
+                    # display the board
+                    embed, board_image = self.get_board_embed()
+                    await message.channel.send(embed=embed, file=board_image)
+                
+                    # if the game ended then end the game
+                    if self.chess_handler.board.outcome() != None:
+                        game_result = self.chess_handler.end_game()
+
+                        # save the game result to memory
+                        self.save_game(game_result)
+                        self.game_number += 1
+                        self.dump_config()
+
+                        # send the game result
+                        embed_message = discord.Embed(title = "GAME OVER:", color = discord.Color.gold())
+                        embed_message.add_field(name = "Game Result:", value = game_result)
+                        await message.channel.send(embed = embed_message)
+
+        except Exception as error:
+            self.logger.error(f"{type(error).__name__}: {error}")
+            print_exc()
+
     """ ----- Admin commands ------ """
     @app_commands.command(name = "start_game", description = "(Admins only) \nStarts a game of team chess.")
     @app_commands.describe(mix_teams = "Reasign teams to all users.")
     @app_commands.choices(mix_teams = [app_commands.Choice(name = "True", value = True), app_commands.Choice(name = "False", value = False)])
     @app_commands.describe(vote_minimum="Sets the minimum number of votes required to play a move. This value is 2 by default.")
-    async def start_game(self, interaction: discord.Interaction, mix_teams: app_commands.Choice[int], vote_minimum: str = "2"):
+    async def start_game(self, interaction: discord.Interaction, mix_teams: app_commands.Choice[int], vote_minimum: str = "2") -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/start_game {mix_teams.value} {vote_minimum}'")
@@ -215,7 +279,7 @@ class TeamChess(commands.Cog):
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")
 
     @app_commands.command(name = "set_tc_channel", description = "(Admins only) \nSets the channel designated for team chess")
-    async def set_tc_channel(self, interaction: discord.Interaction, channel_id: str):
+    async def set_tc_channel(self, interaction: discord.Interaction, channel_id: str) -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/set_tc_channel {channel_id}'")
