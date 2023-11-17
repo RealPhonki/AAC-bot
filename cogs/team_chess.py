@@ -259,7 +259,7 @@ class TeamChess(commands.Cog):
     
     @app_commands.command(name = "end_game", description = "(Admins only) \nEnds the currently active game of team chess.")
     @app_commands.choices(save_game = [app_commands.Choice(name = "True", value = True), app_commands.Choice(name = "False", value = False)])
-    async def end_game_command(self, interaction: discord.Interaction, save_game: app_commands.Choice[int] = True) -> None:
+    async def end_game_command(self, interaction: discord.Interaction, save_game: app_commands.Choice[int] = None) -> None:
         try:
             # debug
             self.logger.info(f"{interaction.user.name} used command '/end_game'")
@@ -278,10 +278,15 @@ class TeamChess(commands.Cog):
             if not self.chess_handler.playing:
                 await interaction.response.send_message("There is no game in session!", ephemeral = True)
                 return
-            
+
             # end the game
             await interaction.response.send_message("Ending game...")
-            await self.end_game(interaction, save_game.value)
+            
+            # avoid invalid attribute error
+            if save_game is None:
+                await self.end_game(interaction, False)
+            else:
+                await self.end_game(interaction, save_game.value)
 
         except Exception as error:
             self.logger.error(f"Internal command failure:\n{type(error).__name__}: {error}")

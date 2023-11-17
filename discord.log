@@ -1,0 +1,10 @@
+[2023-11-16 21:35:43] [INFO    ] discord_bot: Loaded command 'sync'
+[2023-11-16 21:35:43] [INFO    ] discord_bot: Loaded extension 'maintenance'
+[2023-11-16 21:35:43] [INFO    ] discord_bot: Loaded extension 'team_chess'
+[2023-11-16 21:35:43] [INFO    ] discord_bot: Loaded extension 'help'
+[2023-11-16 21:35:46] [INFO    ] discord_bot: Logged in as AAC Bot
+[2023-11-16 21:35:46] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-11-16 21:35:46] [INFO    ] discord_bot: Python version: 3.11.5
+[2023-11-16 21:35:46] [INFO    ] discord_bot: Running on: Darwin 22.5.0 (posix)
+[2023-11-16 21:35:46] [INFO    ] discord_bot: -------------------
+[2023-11-16 21:35:56] [INFO    ] discord_bot: slamsandwich19 used command '/start_game False 1'
