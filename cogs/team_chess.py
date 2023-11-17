@@ -28,6 +28,8 @@ class TeamChess(commands.Cog):
 
         # attributes
         self.vote_minimum = 0
+        self.white_team = set()
+        self.black_team = set()
 
         # initialize
         self.chess_handler = ChessHandler()
@@ -73,7 +75,7 @@ class TeamChess(commands.Cog):
             self.logger.error(f"Failed to save pgn data:\n{type(error).__name__}: {error}")
 
     async def end_game(self, interaction: discord.Interaction, save_result = True) -> None:
-        game_result = self.chess_handler.end_game()
+        game_result = self.chess_handler.end_game(", ".join(self.white_team), ", ".join(self.black_team))
 
         # save the game result to memory
         if save_result:
@@ -150,6 +152,12 @@ class TeamChess(commands.Cog):
                 await message.channel.send(f'"{message.content}" is not a legal move!')
                 return
             
+            # save the player to the list of participants
+            if self.chess_handler.turn:
+                self.white_team.add(message.author.name)
+            else:
+                self.black_team.add(message.author.name)
+
             # send a confirmation message otherwise
             await message.channel.send(f'You voted for "{message.content}"!')
             
@@ -172,7 +180,7 @@ class TeamChess(commands.Cog):
                 
                     # if the game ended then end the game
                     if self.chess_handler.board.outcome() != None:
-                        game_result = self.chess_handler.end_game()
+                        game_result = self.chess_handler.end_game(", ".join(self.white_team), ", ".join(self.black_team))
 
                         # save the game result to memory
                         self.save_game(game_result)
@@ -348,6 +356,12 @@ class TeamChess(commands.Cog):
             if not vote_success:
                 await interaction.response.send_message(f'"{move}" is not a legal move!', ephemeral = True)
                 return
+            
+            # save the player to the list of participants
+            if self.chess_handler.turn:
+                self.white_team.add(interaction.user.name)
+            else:
+                self.black_team.add(interaction.user.name)
             
             # send a confirmation message otherwise
             await interaction.response.send_message(f'You voted for "{move}"!', ephemeral = True)

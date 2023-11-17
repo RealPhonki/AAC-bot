@@ -125,7 +125,7 @@ class ChessHandler:
         # return the image stream
         return image_stream
     
-    def get_pgn(self) -> str:
+    def get_pgn(self, white_team = "No players", black_team = "No players") -> str:
         """ Returns the pgn of the board """
         # create chess game instance
         game = pgn.Game()
@@ -135,8 +135,8 @@ class ChessHandler:
         game.headers["Site"] = "https://discord.com"
         game.headers["Date"] = datetime.now().strftime("%d-%m-%Y")
         game.headers["Round"] = str(self.game_number)
-        game.headers["White"] = "White team"
-        game.headers["Black"] = "Black team"
+        game.headers["White"] = white_team
+        game.headers["Black"] = black_team
 
         # undo all moves
         switchyard = deque()
@@ -170,10 +170,14 @@ class ChessHandler:
         self.reset_voting()
         self.playing = True
     
-    def end_game(self) -> None:
+    def end_game(self, white_team: str, black_team: str) -> None:
         """ Ends the game and returns the pgn of the board. """
         self.playing = False
-        return self.get_pgn()
+        if white_team == "":
+            white_team = None
+        if black_team == "":
+            black_team = None
+        return self.get_pgn(white_team, black_team)
     
     def is_possible_move(self, text: str) -> bool:
         # remove case senstivity
@@ -244,10 +248,14 @@ class ChessHandler:
         """
         Adds a vote to the voting pool if the move is legal.
         """
+        # check if the move is legal without case sensitivity
         if not any(move.lower() == legal_move.lower() for legal_move in self.legal_moves.copy()):
             return False
         
+        # add move to pool
         self.votes[user_id] = move
+
+        # return that the move was legal
         return True
 
     def play_popular_move(self) -> None:
