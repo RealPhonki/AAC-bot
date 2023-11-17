@@ -17,6 +17,14 @@ class Maintenance(commands.Cog):
         self.logger = bot.logger
         self.directory = os.getcwd()
     
+    @app_commands.command(name = "say", description = "(Admins only) \nForces the bot to say something.")
+    async def say(self, interaction: discord.Interaction) -> None:
+        try:
+            pass
+
+        except Exception as error:
+            self.logger.error(f"{type(error).__name__}: {error}")
+
     @app_commands.command(name = "ls", description = "(Admins only) \nLists all of the files in the current directory.")
     async def list_directory(self, interaction: discord.Interaction) -> None:
         try:
@@ -42,7 +50,7 @@ class Maintenance(commands.Cog):
             await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
         except Exception as error:
-            self.logger.error(f"{type(error)}: {error}")
+            self.logger.error(f"{type(error).__name__}: {error}")
 
     @app_commands.command(name = "cd", description = "(Admins only) \nChanges the current directory.")
     async def change_directory(self, interaction: discord.Interaction, directory: str) -> None:
@@ -74,7 +82,7 @@ class Maintenance(commands.Cog):
                     await self.bot.send_command_embed(interaction, f"/cd {directory}", f"cd: no such file or directory: {directory}", discord.Color.red())
             
         except Exception as error:
-            self.logger.error(f"{type(error)}: {error}")
+            self.logger.error(f"{type(error).__name__}: {error}")
     
     @app_commands.command(name = "view_file", description = "(Admins only) \nViews a file in the current directory. (THIS GETS AFFECTED BY CHARACTER LIMIT)")
     async def view_file(self, interaction: discord.Interaction, file_name: str, start: str = None, stop: str = None) -> None:
@@ -159,7 +167,7 @@ class Maintenance(commands.Cog):
             await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
         except Exception as error:
-            self.logger.error(f"{type(error)}: {error}")
+            self.logger.error(f"{type(error).__name__}: {error}")
 
     @app_commands.command(name = "git_pull", description = "(Admins only) \nUpdates the code on the host device.")
     async def git_pull(self, interaction: discord.Interaction) -> None:
@@ -185,7 +193,7 @@ class Maintenance(commands.Cog):
                 await self.bot.send_command_embed(interaction, f"/git_pull", f"{type(error).__name__}: {error}", discord.Color.red())
 
         except Exception as error:
-            self.logger.error(f"{type(error)}: {error}")
+            self.logger.error(f"{type(error).__name__}: {error}")
 
     @app_commands.command(name = "restart", description = "(Admins only) \nRestarts the host device.")
     async def restart(self, interaction: discord.Interaction) -> None:
@@ -209,7 +217,7 @@ class Maintenance(commands.Cog):
             os.execl(python, python, *sys.argv)
 
         except Exception as error:
-            self.logger.error(f"{type(error)}: {error}")
+            self.logger.error(f"{type(error).__name__}: {error}")
 
 # when the bot.load_extension method is called, this function will be called
 async def setup(bot: commands.Bot) -> None:
