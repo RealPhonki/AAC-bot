@@ -320,10 +320,8 @@ class TeamChess(commands.Cog):
 
             # if there are votes then list them out in an embed
             else:
-                print("building embed")
                 embed_message = discord.Embed(title = f"Voting pool:", color = discord.Color.gold())
                 [embed_message.add_field(name = f"{move}: {votes}", value = "", inline = False) for move, votes in non_zero_votes.items()]
-                print('sending embed')
                 await interaction.response.send_message(embed = embed_message, ephemeral = True)
 
         except Exception as error:
