@@ -18,9 +18,18 @@ class Maintenance(commands.Cog):
         self.directory = os.getcwd()
     
     @app_commands.command(name = "say", description = "(Admins only) \nForces the bot to say something.")
-    async def say(self, interaction: discord.Interaction) -> None:
+    async def say(self, interaction: discord.Interaction, message: str) -> None:
         try:
-            pass
+            # debug
+            self.logger.info(f"{interaction.user.name} used command '/say {message}'")
+
+            # check if the user has admin
+            is_admin = await self.bot.check_admin(interaction)
+            if not is_admin:
+                return
+            
+            # send the message
+            await interaction.channel.send(message)
 
         except Exception as error:
             self.logger.error(f"{type(error).__name__}: {error}")
