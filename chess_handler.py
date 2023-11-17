@@ -50,7 +50,7 @@ class ChessHandler:
         Returns a dictionary mapping the vote pool.
         {"Nf3": 4, "e4": 7, ... }
         """
-        return {move: sum(1 for vote in self.votes.values() if vote == move) for move in self.legal_moves}
+        return {move: sum(1 for vote in self.votes.values() if vote.lower() == move.lower()) for move in self.legal_moves}
     
     @property
     def turn_str(self) -> str:
@@ -179,7 +179,7 @@ class ChessHandler:
         """
         Adds a vote to the voting pool if the move is legal.
         """
-        if move not in self.legal_moves:
+        if not any(move.lower() == legal_move.lower() for legal_move in self.legal_moves.copy()):
             return False
         
         self.votes[user_id] = move
