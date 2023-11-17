@@ -1,0 +1,26 @@
+[2023-11-16 07:38:58] [INFO    ] discord_bot: Loaded command 'sync'
+[2023-11-16 07:38:58] [INFO    ] discord_bot: Loaded extension 'help'
+[2023-11-16 07:38:58] [INFO    ] discord_bot: Loaded extension 'maintenance'
+[2023-11-16 07:38:59] [INFO    ] discord_bot: Loaded extension 'team_chess'
+[2023-11-16 07:39:02] [INFO    ] discord_bot: Logged in as AAC Bot
+[2023-11-16 07:39:02] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-11-16 07:39:02] [INFO    ] discord_bot: Python version: 3.11.6
+[2023-11-16 07:39:02] [INFO    ] discord_bot: Running on: Windows 10 (nt)
+[2023-11-16 07:39:02] [INFO    ] discord_bot: -------------------
+[2023-11-16 08:10:29] [INFO    ] discord_bot: slamsandwich19 used command '/help'
+[2023-11-16 08:11:43] [INFO    ] discord_bot: slamsandwich19 used command '/start_game False 2'
+[2023-11-16 09:48:29] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-16 09:48:47] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-16 12:08:36] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-16 12:08:49] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-16 12:08:55] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-16 12:10:26] [INFO    ] discord_bot: slamsandwich19 used command '/vote e4'
+[2023-11-16 15:31:34] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-16 16:06:09] [INFO    ] discord_bot: .nitesh used command '/vote nf3'
+[2023-11-16 16:06:34] [INFO    ] discord_bot: .nitesh used command '/vote Nf3'
+[2023-11-16 16:06:54] [INFO    ] discord_bot: slamsandwich19 used command '/vote Nf3'
+[2023-11-16 16:07:36] [INFO    ] discord_bot: slamsandwich19 used command '/show_votes'
+[2023-11-16 16:30:05] [INFO    ] discord_bot: thearyaponnuh used command '/help'
+[2023-11-16 16:36:02] [INFO    ] discord_bot: slamsandwich19 used command '/end_game'
+[2023-11-16 19:11:18] [INFO    ] discord_bot: chessoperator used command '/vote e4'
+[2023-11-16 19:11:30] [INFO    ] discord_bot: chessoperator used command '/start_game True 2'
