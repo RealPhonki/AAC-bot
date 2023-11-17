@@ -52,7 +52,12 @@ class ChessHandler:
         """
         return {move: sum(1 for vote in self.votes.values() if vote == move) for move in self.legal_moves}
     
-    @ property
+    @property
+    def turn_str(self) -> str:
+        """ Returns the string representing the side to play"""
+        return "White to play" if self.board.turn else "Black to play"
+
+    @property
     def turn(self) -> bool:
         """ Returns True if it is white to play and False if it is black to play. """
         return self.board.turn

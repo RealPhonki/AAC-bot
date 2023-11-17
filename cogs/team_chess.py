@@ -113,7 +113,7 @@ class TeamChess(commands.Cog):
     def get_board_embed(self) -> Tuple[discord.Embed, discord.File]:
         """ Creates a discord.Embed and a discord.File object that represents the board state and returns it. """
         try:
-            embed_message = discord.Embed(title = self.chess_handler.turn, color = discord.Color.gold())
+            embed_message = discord.Embed(title = self.chess_handler.turn_str, color = discord.Color.gold())
             embed_message.add_field(name = f"{self.vote_minimum} vote(s) required to play move", value = "To view possible commands type `/help`")
             embed_message.add_field(name = "Legal moves:", value = ", ".join(self.chess_handler.legal_moves), inline = False)
             embed_message.set_image(url = 'attachment://board_image.png')
