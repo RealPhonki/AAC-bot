@@ -220,10 +220,34 @@ class Maintenance(commands.Cog):
                 await self.bot.send_command_embed(interaction, f"/restart", f"dude what are you doing", discord.Color.red())
                 return
             
-            await self.bot.send_command_embed(interaction, f"/git_pull", f"Attempting restart...", discord.Color.red())
+            await self.bot.send_command_embed(interaction, f"/restart", f"Attempting restart...", discord.Color.red())
             
             python = sys.executable
             os.execl(python, python, *sys.argv)
+
+        except Exception as error:
+            self.logger.error(f"{type(error).__name__}: {error}")
+
+    @app_commands.command(name = "shutdown", description = "(Admins only) \nShuts off the program running on the host device.")
+    async def shutdown(self, interaction: discord.Interaction) -> None:
+        try:
+            # debug
+            self.logger.warn(f"{interaction.user.name} used command '/shutdown'")
+
+            # check if the user has admin
+            is_admin = await self.bot.check_admin(interaction)
+            if not is_admin:
+                return
+            
+            # check if the user is not me..
+            if interaction.user.id != self.bot.CONFIG["owner"]:
+                await self.bot.send_command_embed(interaction, f"/shutdown", f"WHY", discord.Color.red())
+                return
+            
+            await self.bot.send_command_embed(interaction, f"/shutdown", f"Attempting shutdown...", discord.Color.red())
+            
+            self.bot.close()
+            exit()
 
         except Exception as error:
             self.logger.error(f"{type(error).__name__}: {error}")
